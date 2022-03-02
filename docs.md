@@ -25,11 +25,11 @@
 
 ### Timer:
 
-- UI for timer - 0.5h
-- Set + start timer + countdown - 3h
-- times-up + reset - 2h
-- add time by buttons - 3h
-- testing + fixing problems - 2h
+[] UI for timer - 0.5h
+[x] Set + start timer + countdown - 3h
+[] times-up + reset - 2h
+[] add time by buttons - 3h
+[] testing + fixing problems - 2h
 
 ### Stopwatch
 

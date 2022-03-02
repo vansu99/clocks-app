@@ -15,6 +15,7 @@ export default function Timer() {
   const [firstTimeStart, setFirstTimeStart] = useState<number>(1); // second input
   const [secondTime, setSecondTime] = useState<number>(firstTimeStart);
   const [enable, setEnable] = useState<any>();
+  const [timePending, setTimePending] = useState<boolean>(false);
   const [notify, setNotify] = useState<boolean>(false);
   const [time, setTime] = useState<Time>({
     hours: 0,
@@ -54,8 +55,7 @@ export default function Timer() {
       .reverse()
       .reduce((prev, curr: any, i) => prev + curr * Math.pow(60, i), 0);
 
-      console.log(cal)
-    if (secondTime <= 1) setSecondTime(firstTimeStart);
+    if (secondTime <= 1) setSecondTime(cal);
 
     const target = new Date(new Date().getTime() + firstTimeStart);
 
@@ -64,6 +64,7 @@ export default function Timer() {
         setSecondTime((val) => val - 1);
       }, 100);
       setEnable(countDownTimer);
+      setTimePending(true);
     }
   };
 
@@ -71,22 +72,34 @@ export default function Timer() {
     reset();
   };
 
-  const handleSelectTime = (time: number) => {
-    setFirstTimeStart(time);
-    setSecondTime(time);
-
-    reset();
+  const handleSelectTime = (timer: number) => {
+    //setFirstTimeStart(timer);
+    //setSecondTime(timer);
+    setTime({
+      ...time,
+      second: time.second + timer,
+    });
+    //reset();
   };
 
   const handleChangeTime = (e: ChangeEvent<HTMLInputElement>) => {
-    //setFirstTimeStart(val?.toISOString());
-    //setSecondTime(val?.toISOString());
-
     setTime({
       ...time,
       [e.target.name]: e.target.value,
     });
     reset();
+  };
+
+  // reset timer
+  const resetTimer = () => {
+    setEnable(false);
+    setNotify(false);
+    setTimePending(false);
+    setTime({
+      hours: 0,
+      minutes: 0,
+      second: 0,
+    });
   };
 
   const getDiff = useCallback(() => {
@@ -104,20 +117,13 @@ export default function Timer() {
     if (secondTime === 0) {
       reset();
       setNotify(true);
+      setTimePending(false);
     }
   }, [reset, secondTime]);
 
   return (
     <div>
       {notify && <p>Ring ring ring...</p>}
-      {/* <LocalizationProvider dateAdapter={DateAdapter}>
-        <TimePicker
-          label="Time"
-          value="x"
-          onChange={handleChangeTime}
-          renderInput={(params: any) => <TextField {...params} />}
-        />
-      </LocalizationProvider> */}
       <div>
         <input
           type="number"
@@ -152,8 +158,16 @@ export default function Timer() {
           <option value="120">2m</option>
         </select>
       </div>
-      <button onClick={startCountdown}>Start Timer</button>
-      {enable && <button onClick={pauseCountdown}>Pause</button>}
+
+      {timePending ? (
+        <button onClick={pauseCountdown}>Stop Timer</button>
+      ) : (
+        <button onClick={startCountdown}>Start Timer</button>
+      )}
+      {secondTime === 0 && <button onClick={resetTimer}>Reset Timer</button>}
     </div>
   );
 }
+
+// su dung secondTime de co the countdown, vi nhan vao se bao gom gio, phut, giay
+// tu do se calculate thanh tong so giay
