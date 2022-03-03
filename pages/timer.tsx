@@ -5,7 +5,7 @@ import { TextField } from '@mui/material';
 import TimePicker from '@mui/lab/TimePicker';
 import moment from 'moment';
 
-interface Time {
+export interface Time {
   hours: number;
   minutes: number;
   second: number;

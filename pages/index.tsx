@@ -1,43 +1,97 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import moment from 'moment';
-// import TimePicker from '@mui/lab/TimePicker';
-// import AdapterDateFns from '@mui/lab/AdapterDateFns';
-// import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { Box, Container, Typography, TextField, Stack, Button } from '@mui/material';
+import { Select, MenuItem } from '@mui/material';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { Box, Container, TextField, Stack, Button } from '@mui/material';
+import { Time } from './timer';
+import hours from './mocks/hours';
+import Clock from './components/Clock';
+import minutes from './mocks/minutes';
+import { convertSecond, convertTime, padTime } from './utils';
+import Countdown from './components/Countdown';
 
 const Home: NextPage = () => {
-  const [time, setTime] = useState<Date | null>(new Date());
+  const [targetTime, setTargetTime] = useState<any>({
+    hours: 0,
+    minutes: 0,
+  });
+  const [countdownTime, setCountDownTime] = useState<Time>({
+    hours: 0,
+    minutes: 0,
+    second: 0,
+  });
+  const [millisecond, setMillisecond] = useState<number>(0);
   const [enable, setEnable] = useState<boolean>(false);
-  const [currentTime, setCurrentTime] = useState<any>('');
   const [searchText, setSearchText] = useState<string>('');
-
-  useEffect(() => {
-    setCurrentTime(new Date().toISOString());
-  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
   };
 
-  const handleChangeTime = (val: Date | null) => {
-    console.log(val);
+  const handleChangeTime = (e: any, type: string) => {
+    switch (type) {
+      case 'hours':
+        setTargetTime({
+          ...targetTime,
+          hours: Number(e.target.value),
+        });
+        break;
+      case 'minutes':
+        setTargetTime({
+          ...targetTime,
+          minutes: Number(e.target.value),
+        });
+        break;
+
+      default:
+        return;
+    }
   };
 
   const toggleAlarm = () => {
+    const now = moment(new Date(), 'HH:mm:ss');
+    const target = moment(Object.values(targetTime).join(':') + ':00', 'HH:mm:ss');
+    const durations = moment.duration(now.diff(target));
+
+    setCountDownTime({
+      hours: Math.abs(durations.hours()),
+      minutes: Math.abs(durations.minutes()),
+      second: Math.abs(durations.seconds()),
+    });
     if (enable) resetTimer();
-    return setEnable((val) => !val);
+    return setEnable((val: any) => !val);
   };
+
+  useEffect(() => {
+    console.log('acitve ne')
+    const countdownInterval = setInterval(() => {
+      if (millisecond !== 0) {
+        setMillisecond((prev) => prev - 10);
+      } else {
+        setMillisecond(0);
+        //clearInterval(handleInterval)
+      }
+    }, 10);
+    return () => clearInterval(countdownInterval);
+  }, [countdownTime, millisecond]);
+
+  useEffect(() => {
+    if (countdownTime) {
+      setMillisecond(
+        convertSecond(countdownTime.hours, countdownTime.minutes, countdownTime.second) *
+          1000
+      );
+    }
+  }, [countdownTime]);
 
   const pauseTimer = () => {
     // resetInterval
-  }
+  };
 
   const resetTimer = () => {
     console.log('reset');
-    setCurrentTime(new Date().toISOString());
+    // clearInterval
   };
 
   return (
@@ -56,31 +110,54 @@ const Home: NextPage = () => {
           alignItems: 'center',
         }}
       >
-        <Box
-          sx={{
-            width: 300,
-            height: 100,
-            textAlign: 'center',
-            backgroundColor: 'blue',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Typography color="#fff" variant="h3">
-            {moment(currentTime).format('hh:mm:ss')}
-          </Typography>
-        </Box>
+        <Clock />
+        {
+          <h3 className="countdown">
+            {padTime(countdownTime.hours)}:{padTime(countdownTime.minutes)}:
+            {padTime(countdownTime.second)}
+            <Countdown millisecond={millisecond} />
+          </h3>
+        }
         <Box sx={{ marginTop: '30px' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <h2>Wake me up at</h2>
-            {/* <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <TimePicker
-                value={time}
-                onChange={handleChangeTime}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </LocalizationProvider> */}
+            <Stack
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              spacing={2}
+              sx={{ marginLeft: '30px' }}
+            >
+              <div>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={targetTime.hours}
+                  onChange={(e) => handleChangeTime(e, 'hours')}
+                >
+                  {hours.map((hour, index) => (
+                    <MenuItem key={index} value={hour}>
+                      {hour}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </div>
+              <span style={{ fontWeight: 'bold', fontSize: '17px' }}>:</span>
+              <div>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={targetTime.minutes}
+                  onChange={(e) => handleChangeTime(e, 'minutes')}
+                >
+                  {minutes.map((minute, index) => (
+                    <MenuItem key={index} value={minute}>
+                      {minute}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </div>
+            </Stack>
           </Box>
         </Box>
         <Box sx={{ marginTop: '30px' }}>
