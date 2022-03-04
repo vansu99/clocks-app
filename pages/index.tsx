@@ -16,13 +16,14 @@ import {
   Stack,
   Button,
 } from '@mui/material';
+import { ITime } from './types';
 
 const Home: NextPage = () => {
   const [targetTime, setTargetTime] = useState<any>({
     hours: 0,
     minutes: 0,
   });
-  const [countdownTime, setCountDownTime] = useState<Time>({
+  const [countdownTime, setCountDownTime] = useState<ITime>({
     hours: 0,
     minutes: 0,
     second: 0,
@@ -33,7 +34,7 @@ const Home: NextPage = () => {
     countdownTime.minutes,
     countdownTime.second,
   ]);
-  const [millisecond, setMillisecond] = useState<number>(0);
+
   const [enable, setEnable] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>('');
 
@@ -57,6 +58,7 @@ const Home: NextPage = () => {
     }
   }, [hrs, mins, resetCountDownTime, secs]);
 
+  // set interval for countdown
   useEffect(() => {
     let timeInterval: any = null;
     if (enable) {
@@ -102,22 +104,26 @@ const Home: NextPage = () => {
     setEnable(true);
   };
 
-  useEffect(() => {
-    const today = moment(new Date()).format("hh:mm");
-    const currentCD = moment(Object.values(targetTime).join(':'), 'hh:mm').format('hh:mm');
-
-    if (today === currentCD) {
-      console.log('equal')
-      resetAlarm();
-    }
-  }, [secs, hrs, mins, targetTime]);
-
   // reset alarm clock
-  const resetAlarm = () => {
+  const resetAlarm = useCallback(() => {
     setEnable(false);
     setSearchText('');
+    resetCountDownTime();
+    setTargetTime({ hours: 0, minutes: 0 });
     setCountDownTime({ hours: 0, minutes: 0, second: 0 });
-  };
+  }, [resetCountDownTime]);
+
+  // check countdown
+  useEffect(() => {
+    const today = moment(new Date()).format('hh:mm');
+    const currentCD = moment(Object.values(targetTime).join(':'), 'hh:mm').format(
+      'hh:mm'
+    );
+
+    if (today === currentCD) {
+      resetAlarm();
+    }
+  }, [secs, hrs, mins, targetTime, resetAlarm]);
 
   return (
     <div>
