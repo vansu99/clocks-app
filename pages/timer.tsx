@@ -1,9 +1,4 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import DateAdapter from '@mui/lab/AdapterMoment';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import { TextField } from '@mui/material';
-import TimePicker from '@mui/lab/TimePicker';
-import moment from 'moment';
 
 export interface Time {
   hours: number;
@@ -56,9 +51,7 @@ export default function Timer() {
       .reduce((prev, curr: any, i) => prev + curr * Math.pow(60, i), 0);
 
     if (secondTime <= 1) setSecondTime(cal);
-
-    const target = new Date(new Date().getTime() + firstTimeStart);
-
+    
     if (!enable) {
       const countDownTimer = setInterval(() => {
         setSecondTime((val) => val - 1);

@@ -1,15 +1,21 @@
 import type { NextPage } from 'next';
-import Head from 'next/head';
 import moment from 'moment';
-import { Select, MenuItem } from '@mui/material';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import { Box, Container, TextField, Stack, Button } from '@mui/material';
+import Head from 'next/head';
 import { Time } from './timer';
 import hours from './mocks/hours';
-import Clock from './components/Clock';
 import minutes from './mocks/minutes';
-import { convertSecond, convertTime, padTime } from './utils';
-import Countdown from './components/Countdown';
+import Clock from './components/Clock';
+import Testing from './components/Testing';
+import { ChangeEvent, useEffect, useState, useCallback } from 'react';
+import {
+  Box,
+  Container,
+  Select,
+  MenuItem,
+  TextField,
+  Stack,
+  Button,
+} from '@mui/material';
 
 const Home: NextPage = () => {
   const [targetTime, setTargetTime] = useState<any>({
@@ -21,6 +27,12 @@ const Home: NextPage = () => {
     minutes: 0,
     second: 0,
   });
+
+  const [[hrs, mins, secs], setTime] = useState([
+    countdownTime.hours,
+    countdownTime.minutes,
+    countdownTime.second,
+  ]);
   const [millisecond, setMillisecond] = useState<number>(0);
   const [enable, setEnable] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>('');
@@ -28,6 +40,33 @@ const Home: NextPage = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
   };
+
+  const resetCountDownTime = useCallback(
+    () => setTime([countdownTime.hours, countdownTime.minutes, countdownTime.second]),
+    [countdownTime.hours, countdownTime.minutes, countdownTime.second]
+  );
+
+  const tick = useCallback(() => {
+    if (hrs === 0 && mins === 0 && secs === 0) resetCountDownTime();
+    else if (mins === 0 && secs === 0) {
+      setTime([hrs - 1, 59, 59]);
+    } else if (secs === 0) {
+      setTime([hrs, mins - 1, 59]);
+    } else {
+      setTime([hrs, mins, secs - 1]);
+    }
+  }, [hrs, mins, resetCountDownTime, secs]);
+
+  useEffect(() => {
+    let timeInterval: any = null;
+    if (enable) {
+      timeInterval = setInterval(() => tick(), 1000);
+    } else {
+      clearInterval(timeInterval);
+    }
+
+    return () => clearInterval(timeInterval);
+  }, [enable, hrs, mins, secs, tick]);
 
   const handleChangeTime = (e: any, type: string) => {
     switch (type) {
@@ -49,7 +88,8 @@ const Home: NextPage = () => {
     }
   };
 
-  const toggleAlarm = () => {
+  // handle enable alarm clock
+  const startAlarm = () => {
     const now = moment(new Date(), 'HH:mm:ss');
     const target = moment(Object.values(targetTime).join(':') + ':00', 'HH:mm:ss');
     const durations = moment.duration(now.diff(target));
@@ -59,39 +99,24 @@ const Home: NextPage = () => {
       minutes: Math.abs(durations.minutes()),
       second: Math.abs(durations.seconds()),
     });
-    if (enable) resetTimer();
-    return setEnable((val: any) => !val);
+    setEnable(true);
   };
 
   useEffect(() => {
-    console.log('acitve ne')
-    const countdownInterval = setInterval(() => {
-      if (millisecond !== 0) {
-        setMillisecond((prev) => prev - 10);
-      } else {
-        setMillisecond(0);
-        //clearInterval(handleInterval)
-      }
-    }, 10);
-    return () => clearInterval(countdownInterval);
-  }, [countdownTime, millisecond]);
+    const today = moment(new Date()).format("hh:mm");
+    const currentCD = moment(Object.values(targetTime).join(':'), 'hh:mm').format('hh:mm');
 
-  useEffect(() => {
-    if (countdownTime) {
-      setMillisecond(
-        convertSecond(countdownTime.hours, countdownTime.minutes, countdownTime.second) *
-          1000
-      );
+    if (today === currentCD) {
+      console.log('equal')
+      resetAlarm();
     }
-  }, [countdownTime]);
+  }, [secs, hrs, mins, targetTime]);
 
-  const pauseTimer = () => {
-    // resetInterval
-  };
-
-  const resetTimer = () => {
-    console.log('reset');
-    // clearInterval
+  // reset alarm clock
+  const resetAlarm = () => {
+    setEnable(false);
+    setSearchText('');
+    setCountDownTime({ hours: 0, minutes: 0, second: 0 });
   };
 
   return (
@@ -110,14 +135,17 @@ const Home: NextPage = () => {
           alignItems: 'center',
         }}
       >
-        <Clock />
-        {
-          <h3 className="countdown">
-            {padTime(countdownTime.hours)}:{padTime(countdownTime.minutes)}:
-            {padTime(countdownTime.second)}
-            <Countdown millisecond={millisecond} />
-          </h3>
-        }
+        <Clock>
+          <Testing
+            enable={enable}
+            hoursMinSecs={{
+              hours: hrs,
+              minutes: mins,
+              seconds: secs,
+            }}
+          />
+        </Clock>
+        {<h3 className="countdown">{/* <Countdown millisecond={millisecond} /> */}</h3>}
         <Box sx={{ marginTop: '30px' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <h2>Wake me up at</h2>
@@ -142,7 +170,7 @@ const Home: NextPage = () => {
                   ))}
                 </Select>
               </div>
-              <span style={{ fontWeight: 'bold', fontSize: '17px' }}>:</span>
+              <span style={{ fontWeight: 'bold', fontSize: '21px' }}>:</span>
               <div>
                 <Select
                   labelId="demo-simple-select-label"
@@ -173,19 +201,36 @@ const Home: NextPage = () => {
         </Box>
 
         {/* Video */}
-        <Button
-          sx={{
-            marginTop: 10,
-            textTransform: 'capitalize',
-            fontWeight: 'bold',
-            fontSize: '20px',
-          }}
-          size="large"
-          variant="contained"
-          onClick={toggleAlarm}
-        >
-          {enable ? 'Disable Alarm' : 'Enable Alarm'}
-        </Button>
+
+        {enable ? (
+          <Button
+            sx={{
+              marginTop: 10,
+              textTransform: 'capitalize',
+              fontWeight: 'bold',
+              fontSize: '20px',
+            }}
+            size="large"
+            variant="contained"
+            onClick={resetAlarm}
+          >
+            Disable Alarm
+          </Button>
+        ) : (
+          <Button
+            sx={{
+              marginTop: 10,
+              textTransform: 'capitalize',
+              fontWeight: 'bold',
+              fontSize: '20px',
+            }}
+            size="large"
+            variant="contained"
+            onClick={startAlarm}
+          >
+            Enable Alarm
+          </Button>
+        )}
       </Container>
     </div>
   );

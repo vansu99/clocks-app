@@ -13,7 +13,7 @@ export default function Countdown({ millisecond }: CountdownProps) {
     time = time % (60 * 1000);
     const seconds = formatUnitOfTime(Math.floor(time / 1000));
     const milliseconds = formatUnitOfTime(time % 1000);
-    return `${hours}:${minutes}:${seconds}:${milliseconds}`;
+    return `${hours}:${minutes}:${seconds}`;
   };
 
   const formatUnitOfTime = (unitOfTime: number) => {
