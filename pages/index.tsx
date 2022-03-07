@@ -1,12 +1,14 @@
 import type { NextPage } from 'next';
+import axios from 'axios';
 import moment from 'moment';
 import Head from 'next/head';
-import { Time } from './timer';
+import { ITime } from './types';
 import hours from './mocks/hours';
 import minutes from './mocks/minutes';
+import { useDebounce } from './hooks';
 import Clock from './components/Clock';
 import Testing from './components/Testing';
-import { ChangeEvent, useEffect, useState, useCallback } from 'react';
+import { ChangeEvent, useEffect, useState, useCallback, useRef } from 'react';
 import {
   Box,
   Container,
@@ -16,7 +18,6 @@ import {
   Stack,
   Button,
 } from '@mui/material';
-import { ITime } from './types';
 
 const Home: NextPage = () => {
   const [targetTime, setTargetTime] = useState<any>({
@@ -36,7 +37,50 @@ const Home: NextPage = () => {
   ]);
 
   const [enable, setEnable] = useState<boolean>(false);
+  const [videoSrc, setVideoSrc] = useState<string>(
+    'https://www.youtube.com/embed/ySk3mj-A3is'
+  );
   const [searchText, setSearchText] = useState<string>('');
+  const [alarmTriggered, setAlarmTriggered] = useState<boolean>(false);
+  const delaySearchTerm = useDebounce<string>(searchText, 600);
+  const videoRef = useRef<HTMLIFrameElement>(null);
+
+  const handleActionVideo = (type: string) => {
+    if (videoRef.current?.src !== null) {
+      switch (type) {
+        case 'play':
+          const newVideoLinkPlay = videoRef.current?.src + '?autoplay=1';
+          setVideoSrc(newVideoLinkPlay);
+          break;
+
+        case 'stop':
+          const newVideoLinkStop = videoRef.current?.src + '?autoplay=0';
+          setVideoSrc(newVideoLinkStop);
+
+        default:
+          return;
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (delaySearchTerm) {
+      const getVideo = async () => {
+        await axios
+          .get(
+            `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${delaySearchTerm}&key=${process.env.YOUTUBE_API_KEY}`
+          )
+          .then((res) => {
+            setVideoSrc(
+              `https://www.youtube.com/embed/${res.data.items[0]?.id?.videoId}`
+            );
+          });
+      };
+      getVideo();
+    } else {
+      setVideoSrc(`https://www.youtube.com/embed/ySk3mj-A3is`);
+    }
+  }, [delaySearchTerm]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -90,6 +134,15 @@ const Home: NextPage = () => {
     }
   };
 
+  // handle Snooze
+  const handleSnooze = () => {};
+
+  // handle turn off alarm
+  const handleTurnOffAlarm = () => {
+    handleActionVideo('stop');
+    setAlarmTriggered(false);
+  };
+
   // handle enable alarm clock
   const startAlarm = () => {
     const now = moment(new Date(), 'HH:mm:ss');
@@ -122,6 +175,9 @@ const Home: NextPage = () => {
 
     if (today === currentCD) {
       resetAlarm();
+      setTime([0, 0, 0]);
+      setAlarmTriggered(true);
+      handleActionVideo('play');
     }
   }, [secs, hrs, mins, targetTime, resetAlarm]);
 
@@ -207,11 +263,24 @@ const Home: NextPage = () => {
         </Box>
 
         {/* Video */}
+        <Box sx={{ marginTop: 5 }}>
+          <iframe
+            ref={videoRef}
+            width="460"
+            height="270"
+            src={videoSrc}
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </Box>
 
+        {/* Button trigger alarm clock */}
         {enable ? (
           <Button
             sx={{
-              marginTop: 10,
+              marginTop: 3,
               textTransform: 'capitalize',
               fontWeight: 'bold',
               fontSize: '20px',
@@ -225,7 +294,7 @@ const Home: NextPage = () => {
         ) : (
           <Button
             sx={{
-              marginTop: 10,
+              marginTop: 3,
               textTransform: 'capitalize',
               fontWeight: 'bold',
               fontSize: '20px',
@@ -236,6 +305,36 @@ const Home: NextPage = () => {
           >
             Enable Alarm
           </Button>
+        )}
+
+        {alarmTriggered && (
+          <Stack direction="row" sx={{ marginTop: 10 }}>
+            <Button
+              sx={{
+                marginRight: 10,
+                textTransform: 'capitalize',
+                fontWeight: 'bold',
+                fontSize: '20px',
+              }}
+              size="large"
+              variant="contained"
+              onClick={handleTurnOffAlarm}
+            >
+              Turn off alarm
+            </Button>
+            <Button
+              sx={{
+                textTransform: 'capitalize',
+                fontWeight: 'bold',
+                fontSize: '20px',
+              }}
+              size="large"
+              variant="contained"
+              onClick={handleSnooze}
+            >
+              Snooze
+            </Button>
+          </Stack>
         )}
       </Container>
     </div>

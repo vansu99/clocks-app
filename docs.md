@@ -15,12 +15,12 @@
 [x] Logic for clock - 4h
 [x] Enable Alarm - 4h
 [x] Disable alarm - 2h
-[] Alarm triggered - 1h
+[x] Alarm triggered - 1h
 [] Turn off alarm - 2h
 [] Snooze - 2h
-[] Video play when alarm triggered - 2h
+[x] Video play when alarm triggered - 2h
 [] Handle video playback when snooze or turn off alarm - 1h
-[] Let user set the alarm video - 2h
+[x] Let user set the alarm video - 2h
 [] testing + fixing problems - 4h
 
 ### Timer:
