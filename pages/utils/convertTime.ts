@@ -2,8 +2,8 @@ import moment from 'moment';
 
 // timer la 1 object
 function convertTime(timer: any) {
-  let time = moment(Object.values(timer).join(':'), 'HH:mm:ss').toISOString();
-  return moment(time).format("HH:mm:ss")
+  let time = moment(Object.values(timer).join(':'), 'hh:mm').format('hh:mm');
+  return time;
 }
 
 export default convertTime;

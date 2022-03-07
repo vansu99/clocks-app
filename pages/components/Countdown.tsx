@@ -1,26 +1,43 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 
-interface CountdownProps {
-  millisecond: number;
+function Countdown({ hoursMinSecs, enable }: any) {
+  const { hours, minutes, seconds } = hoursMinSecs;
+  // const [[hrs, mins, secs], setTime] = React.useState([hours, minutes, seconds]);
+
+  // const resetCountDownTime = useCallback(
+  //   () => setTime([parseInt(hours), parseInt(minutes), parseInt(seconds)]),
+  //   [hours, minutes, seconds]
+  // );
+
+  // const tick = useCallback(() => {
+  //   if (hrs === 0 && mins === 0 && secs === 0) resetCountDownTime();
+  //   else if (mins === 0 && secs === 0) {
+  //     setTime([hrs - 1, 59, 59]);
+  //   } else if (secs === 0) {
+  //     setTime([hrs, mins - 1, 59]);
+  //   } else {
+  //     setTime([hrs, mins, secs - 1]);
+  //   }
+  // }, [hrs, mins, resetCountDownTime, secs]);
+
+  // React.useEffect(() => {
+  //   let timeInterval: any = null;
+  //   if ((hrs !== 0 && mins !== 0 && secs !== 0) || enable) {
+  //     timeInterval = setInterval(() => tick(), 1000);
+  //   } else {
+  //     clearInterval(timeInterval);
+  //   }
+
+  //   return () => clearInterval(timeInterval);
+  // }, [enable, hrs, mins, secs, tick]);
+
+  return (
+    <>
+      {`${hours.toString().padStart(2, '0')}:${minutes
+        .toString()
+        .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
+    </>
+  );
 }
 
-export default function Countdown({ millisecond }: CountdownProps) {
-  const getTime = (timeInMilliseconds: number) => {
-    let time = timeInMilliseconds;
-    const hours = formatUnitOfTime(Math.floor(time / (60 * 60 * 1000)));
-    time = time % (60 * 60 * 1000);
-    const minutes = formatUnitOfTime(Math.floor(time / (60 * 1000)));
-    time = time % (60 * 1000);
-    const seconds = formatUnitOfTime(Math.floor(time / 1000));
-    const milliseconds = formatUnitOfTime(time % 1000);
-    return `${hours}:${minutes}:${seconds}`;
-  };
-
-  const formatUnitOfTime = (unitOfTime: number) => {
-    return unitOfTime < 10
-      ? `0${unitOfTime}`.substring(0, 2)
-      : unitOfTime.toString().substring(0, 2);
-  };
-
-  return <div>{getTime(millisecond)}</div>;
-}
+export default memo(Countdown);
