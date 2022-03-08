@@ -2,10 +2,10 @@ import type { NextPage } from 'next';
 import axios from 'axios';
 import moment from 'moment';
 import Head from 'next/head';
-import { ITime } from './types';
-import hours from './mocks/hours';
-import minutes from './mocks/minutes';
-import { useDebounce } from './hooks';
+import { ITime } from '../types';
+import hours from '../mocks/hours';
+import minutes from '../mocks/minutes';
+import useDebounce from '../hooks';
 import Clock from './components/Clock';
 import Countdown from './components/Countdown';
 import { ChangeEvent, useEffect, useState, useCallback, useRef } from 'react';
@@ -20,7 +20,7 @@ import {
   Typography,
 } from '@mui/material';
 import Video from './components/Video';
-import { convertTime } from './utils';
+import { convertTime } from '../utils';
 
 const Home: NextPage = () => {
   const [targetTime, setTargetTime] = useState<any>({

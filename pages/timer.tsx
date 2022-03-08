@@ -1,3 +1,5 @@
+import { Box, Stack, Button, TextField, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
 
 export interface Time {
@@ -5,6 +7,16 @@ export interface Time {
   minutes: number;
   second: number;
 }
+
+const StyledTextField = styled(TextField)({
+  '&.MuiFormControl-root': {
+    width: '60px',
+    marginRight: '10px',
+  },
+  '& .MuiInputBase-input': {
+    textAlign: 'center',
+  },
+});
 
 export default function Timer() {
   const [firstTimeStart, setFirstTimeStart] = useState<number>(1); // second input
@@ -51,7 +63,7 @@ export default function Timer() {
       .reduce((prev, curr: any, i) => prev + curr * Math.pow(60, i), 0);
 
     if (secondTime <= 1) setSecondTime(cal);
-    
+
     if (!enable) {
       const countDownTimer = setInterval(() => {
         setSecondTime((val) => val - 1);
@@ -63,6 +75,7 @@ export default function Timer() {
 
   const pauseCountdown = () => {
     reset();
+    setTimePending(false);
   };
 
   const handleSelectTime = (timer: number) => {
@@ -115,50 +128,109 @@ export default function Timer() {
   }, [reset, secondTime]);
 
   return (
-    <div>
-      {notify && <p>Ring ring ring...</p>}
-      <div>
-        <input
-          type="number"
+    <Stack direction="column" alignItems="center" paddingY={10}>
+      {notify ? <Typography variant="h5" marginBottom={3}>Ring ring ring...</Typography> : null}
+
+      <Box
+        sx={{
+          color: '#fff',
+          fontSize: '36px',
+          width: '260px',
+          height: '100px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '4px',
+          backgroundColor: '#1976d2',
+        }}
+      >
+        {separateTimer(time.hours)}:{separateTimer(time.minutes)}:
+        {separateTimer(time.second)}
+      </Box>
+
+      {/* input timer */}
+      <Box marginY={3}>
+        <StyledTextField
+          type="text"
           name="hours"
           value={time.hours}
           onChange={handleChangeTime}
         />
-        <input
-          type="number"
+        <StyledTextField
+          type="text"
           name="minutes"
           value={time.minutes}
           onChange={handleChangeTime}
         />
-        <input
-          type="number"
+        <StyledTextField
+          type="text"
           name="second"
           value={time.second}
           onChange={handleChangeTime}
         />
-      </div>
-      <div>
-        {separateTimer(time.hours)}:{separateTimer(time.minutes)}:
-        {separateTimer(time.second)}
-      </div>
-      <div>
-        <select onChange={(e) => handleSelectTime(Number(e.target.value))}>
-          <option value="1">1s</option>
-          <option value="15">15s</option>
-          <option value="30">30s</option>
-          <option value="45">45s</option>
-          <option value="60">1m</option>
-          <option value="120">2m</option>
-        </select>
-      </div>
+      </Box>
 
-      {timePending ? (
-        <button onClick={pauseCountdown}>Stop Timer</button>
-      ) : (
-        <button onClick={startCountdown}>Start Timer</button>
-      )}
-      {secondTime === 0 && <button onClick={resetTimer}>Reset Timer</button>}
-    </div>
+      {/* button add time */}
+      <Stack direction="row">
+        <Button
+          onClick={() => handleSelectTime(Number(15))}
+          variant="contained"
+          sx={{
+            textTransform: 'lowercase',
+            borderRadius: '5px 0 0 5px',
+          }}
+        >
+          +15s
+        </Button>
+        <Button
+          onClick={() => handleSelectTime(Number(30))}
+          variant="contained"
+          sx={{
+            textTransform: 'lowercase',
+            borderRadius: 0,
+          }}
+        >
+          +30s
+        </Button>
+        <Button
+          onClick={() => handleSelectTime(Number(45))}
+          variant="contained"
+          sx={{
+            textTransform: 'lowercase',
+            borderRadius: 0,
+          }}
+        >
+          +45s
+        </Button>
+        <Button
+          onClick={() => handleSelectTime(Number(60))}
+          variant="contained"
+          sx={{
+            textTransform: 'lowercase',
+            borderRadius: '0 5px 5px 0',
+          }}
+        >
+          +1m
+        </Button>
+      </Stack>
+
+      <Box marginTop={3}>
+        {timePending ? (
+          <Button variant="contained" onClick={pauseCountdown}>
+            Stop Timer
+          </Button>
+        ) : (
+          <Button variant="contained" onClick={startCountdown}>
+            Start Timer
+          </Button>
+        )}
+        {secondTime === 0 && !timePending && (
+          <Button variant="contained" onClick={resetTimer}>
+            Reset Timer
+          </Button>
+        )}
+      </Box>
+    </Stack>
   );
 }
 
