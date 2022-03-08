@@ -43,12 +43,13 @@ const Home: NextPage = () => {
   const [videoSrc, setVideoSrc] = useState<string>(
     'https://www.youtube.com/embed/ySk3mj-A3is'
   );
-  const [searchText, setSearchText] = useState<string>('');
-  const [alarmTriggered, setAlarmTriggered] = useState<boolean>(false);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [isRepeatVideo, setIsRepeatVideo] = useState<boolean>(false);
-  const delaySearchTerm = useDebounce<string>(searchText, 600);
   const videoRef = useRef<HTMLIFrameElement>(null);
+  const [searchText, setSearchText] = useState<string>('');
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const delaySearchTerm = useDebounce<string>(searchText, 600);
+  const [isRepeatVideo, setIsRepeatVideo] = useState<boolean>(false);
+  const [isReplayVideo, setIsReplayVideo] = useState<boolean>(false);
+  const [alarmTriggered, setAlarmTriggered] = useState<boolean>(false);
 
   const handleActionVideo = (type: string) => {
     if (videoRef.current?.src !== null) {
@@ -170,6 +171,7 @@ const Home: NextPage = () => {
     setIsPlaying(false);
     setAlarmTriggered(false);
     handleActionVideo('stop');
+    setIsReplayVideo(false);
   }, [alarmTriggered, resetCountDownTime]);
 
   // handle Snooze
@@ -177,6 +179,7 @@ const Home: NextPage = () => {
     // add 5 minutes to the time left
     setTime([0, 5, 0]);
     setEnable(true);
+    setIsReplayVideo(true);
   };
 
   // check current time and target time
@@ -275,7 +278,12 @@ const Home: NextPage = () => {
 
         {/* Video */}
         <Box sx={{ marginTop: 5 }}>
-          <Video videoSrc={videoSrc} isPlaying={isPlaying} repeat={isRepeatVideo} />
+          <Video
+            videoSrc={videoSrc}
+            isPlaying={isPlaying}
+            isReplay={isReplayVideo}
+            repeat={isRepeatVideo}
+          />
         </Box>
 
         {/* Button trigger alarm clock */}
@@ -334,6 +342,7 @@ const Home: NextPage = () => {
               }}
               size="large"
               variant="outlined"
+              disabled={isReplayVideo}
               onClick={handleSnooze}
             >
               Snooze

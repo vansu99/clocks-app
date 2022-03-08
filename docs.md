@@ -28,7 +28,7 @@
 
 [x] Video play when alarm triggered - 2h
 
-[] Handle video playback when snooze or turn off alarm - 1h
+[x] Handle video playback when snooze or turn off alarm - 1h
 
 [x] Let user set the alarm video - 2h
 
