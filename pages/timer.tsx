@@ -65,6 +65,7 @@ export default function Timer() {
     if (secondTime <= 1) setSecondTime(cal);
 
     if (!enable) {
+      console.log('first');
       const countDownTimer = setInterval(() => {
         setSecondTime((val) => val - 1);
       }, 100);
@@ -79,13 +80,13 @@ export default function Timer() {
   };
 
   const handleSelectTime = (timer: number) => {
-    //setFirstTimeStart(timer);
-    //setSecondTime(timer);
     setTime({
       ...time,
       second: time.second + timer,
     });
-    //reset();
+    setSecondTime((val) => val + timer);
+    setEnable(undefined);
+    startCountdown();
   };
 
   const handleChangeTime = (e: ChangeEvent<HTMLInputElement>) => {
@@ -129,7 +130,11 @@ export default function Timer() {
 
   return (
     <Stack direction="column" alignItems="center" paddingY={10}>
-      {notify ? <Typography variant="h5" marginBottom={3}>Ring ring ring...</Typography> : null}
+      {notify ? (
+        <Typography variant="h5" marginBottom={3}>
+          Ring ring ring...
+        </Typography>
+      ) : null}
 
       <Box
         sx={{

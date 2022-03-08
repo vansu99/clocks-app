@@ -215,7 +215,7 @@ const Home: NextPage = () => {
           <Countdown
             enable={enable}
             hoursMinSecs={{
-              hours: hrs,
+              hours: hrs && hrs,
               minutes: mins,
               seconds: secs,
             }}
