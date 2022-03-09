@@ -39,7 +39,7 @@ const Home: NextPage = () => {
     countdownTime.second,
   ]);
 
-  const [enable, setEnable] = useState<boolean>(false);
+  const [enable, setEnable] = useState<boolean>(true);
   const [videoSrc, setVideoSrc] = useState<string>(
     'https://www.youtube.com/embed/ySk3mj-A3is'
   );
@@ -50,6 +50,7 @@ const Home: NextPage = () => {
   const [isRepeatVideo, setIsRepeatVideo] = useState<boolean>(false);
   const [isReplayVideo, setIsReplayVideo] = useState<boolean>(false);
   const [alarmTriggered, setAlarmTriggered] = useState<boolean>(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
 
   const handleActionVideo = (type: string) => {
     if (videoRef.current?.src !== null) {
@@ -113,14 +114,14 @@ const Home: NextPage = () => {
   // set interval for countdown
   useEffect(() => {
     let timeInterval: any = null;
-    if (enable) {
+    if (isPending) {
       timeInterval = setInterval(() => tick(), 1000);
     } else {
       clearInterval(timeInterval);
     }
 
     return () => clearInterval(timeInterval);
-  }, [enable, hrs, mins, secs, tick]);
+  }, [enable, hrs, isPending, mins, secs, tick]);
 
   const handleChangeTime = (e: any, type: string) => {
     switch (type) {
@@ -153,15 +154,12 @@ const Home: NextPage = () => {
       minutes: Math.abs(durations.minutes()),
       second: Math.abs(durations.seconds()),
     });
-    setEnable(true);
+    setEnable(false);
+    setIsPending(true);
   };
 
   // reset default alarm clock
   const resetAlarm = useCallback(() => {
-    if (!alarmTriggered) {
-      setEnable(false);
-    }
-
     setSearchText('');
     resetCountDownTime();
     setTargetTime({ hours: 0, minutes: 0 });
@@ -169,9 +167,13 @@ const Home: NextPage = () => {
     setTime([0, 0, 0]);
     setIsRepeatVideo(false);
     setIsPlaying(false);
+    setIsPending(false);
     setAlarmTriggered(false);
     handleActionVideo('stop');
     setIsReplayVideo(false);
+    setIsPending(false);
+
+    if(!alarmTriggered) setEnable(true);
   }, [alarmTriggered, resetCountDownTime]);
 
   // handle Snooze
@@ -188,9 +190,9 @@ const Home: NextPage = () => {
     const currentCD = convertTime(targetTime);
 
     if (today === currentCD) {
-      resetAlarm();
-      setTime([0, 0, 0]);
       setAlarmTriggered(true);
+      setTime([0, 0, 0]);
+      resetAlarm();
       handleActionVideo('play');
     }
   }, [secs, hrs, mins, targetTime, resetAlarm]);
@@ -213,9 +215,8 @@ const Home: NextPage = () => {
       >
         <Clock>
           <Countdown
-            enable={enable}
             hoursMinSecs={{
-              hours: hrs && hrs,
+              hours: hrs,
               minutes: mins,
               seconds: secs,
             }}
@@ -287,7 +288,7 @@ const Home: NextPage = () => {
         </Box>
 
         {/* Button trigger alarm clock */}
-        {!enable && (
+        {enable && (
           <Button
             sx={{
               marginTop: 3,
@@ -303,7 +304,7 @@ const Home: NextPage = () => {
           </Button>
         )}
 
-        {!alarmTriggered && enable && (
+        {isPending && (
           <Button
             sx={{
               marginTop: 3,
