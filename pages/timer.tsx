@@ -22,12 +22,14 @@ export default function Timer() {
   const [firstTimeStart, setFirstTimeStart] = useState<number>(1); // second input
   const [secondTime, setSecondTime] = useState<number>(firstTimeStart);
   const [enable, setEnable] = useState<any>();
+  const [timeStart, setTimeStart] = useState<boolean>(true);
+  const [timeStop, setTimeStop] = useState<boolean>(false);
   const [timePending, setTimePending] = useState<boolean>(false);
   const [notify, setNotify] = useState<boolean>(false);
   const [time, setTime] = useState<Time>({
     hours: 0,
     minutes: 0,
-    second: 0,
+    second: 1,
   });
 
   const formatTime = (time: number) => {
@@ -65,18 +67,22 @@ export default function Timer() {
     if (secondTime <= 1) setSecondTime(cal);
 
     if (!enable) {
-      console.log('first');
       const countDownTimer = setInterval(() => {
         setSecondTime((val) => val - 1);
       }, 100);
       setEnable(countDownTimer);
-      setTimePending(true);
+      //setTimePending(true);
+      setTimeStart(false)
+      setTimeStop(true)
     }
+    //setTimeStart(true);
   };
 
   const pauseCountdown = () => {
     reset();
     setTimePending(false);
+    setTimeStart(true);
+    setTimeStop(false)
   };
 
   const handleSelectTime = (timer: number) => {
@@ -85,7 +91,7 @@ export default function Timer() {
       second: time.second + timer,
     });
     setSecondTime((val) => val + timer);
-    setEnable(undefined);
+    //setEnable(undefined);
     startCountdown();
   };
 
@@ -99,9 +105,12 @@ export default function Timer() {
 
   // reset timer
   const resetTimer = () => {
-    setEnable(false);
+    setEnable(undefined);
     setNotify(false);
     setTimePending(false);
+    setTimeStop(false)
+    setTimeStart(true)
+    setSecondTime(1)
     setTime({
       hours: 0,
       minutes: 0,
@@ -121,12 +130,13 @@ export default function Timer() {
   }, [getDiff, secondTime]);
 
   useEffect(() => {
-    if (secondTime === 0) {
+    if (time.hours === 0 && time.minutes === 0 && secondTime === 0) {
       reset();
       setNotify(true);
-      setTimePending(false);
+      setTimeStop(false);
+      setTimePending(true);
     }
-  }, [reset, secondTime]);
+  }, [reset, secondTime, time.hours, time.minutes, time.second]);
 
   return (
     <Stack direction="column" alignItems="center" paddingY={10}>
@@ -220,16 +230,19 @@ export default function Timer() {
       </Stack>
 
       <Box marginTop={3}>
-        {timePending ? (
-          <Button variant="contained" onClick={pauseCountdown}>
-            Stop Timer
-          </Button>
-        ) : (
+        {timeStart && (
           <Button variant="contained" onClick={startCountdown}>
             Start Timer
           </Button>
         )}
-        {secondTime === 0 && !timePending && (
+
+        {timeStop && (
+          <Button variant="contained" onClick={pauseCountdown}>
+            Stop Timer
+          </Button>
+        )}
+
+        {secondTime === 0 && timePending && (
           <Button variant="contained" onClick={resetTimer}>
             Reset Timer
           </Button>
@@ -238,6 +251,3 @@ export default function Timer() {
     </Stack>
   );
 }
-
-// su dung secondTime de co the countdown, vi nhan vao se bao gom gio, phut, giay
-// tu do se calculate thanh tong so giay
