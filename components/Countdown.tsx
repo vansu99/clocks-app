@@ -1,7 +1,9 @@
 import React, { memo } from 'react';
 
+type ITimer = 'hours' | 'minutes' | 'seconds';
+
 function Countdown({ hoursMinSecs }: any) {
-  const { hours = 0, minutes, seconds } = hoursMinSecs;
+  const { hours = 0, minutes, seconds }: Record<ITimer, number> = hoursMinSecs;
 
   return (
     <>

@@ -6,8 +6,8 @@ import { ITime } from '../types';
 import hours from '../mocks/hours';
 import minutes from '../mocks/minutes';
 import useDebounce from '../hooks';
-import Clock from './components/Clock';
-import Countdown from './components/Countdown';
+import Clock from '../components/Clock';
+import Countdown from '../components/Countdown';
 import { ChangeEvent, useEffect, useState, useCallback, useRef } from 'react';
 import {
   Box,
@@ -19,7 +19,7 @@ import {
   Button,
   Typography,
 } from '@mui/material';
-import Video from './components/Video';
+import Video from '../components/Video';
 import { convertTime } from '../utils';
 
 const Home: NextPage = () => {

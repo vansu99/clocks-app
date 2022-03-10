@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import moment from 'moment';
-import { Box, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material';
 
 interface ClockProps {
-  children?: React.ReactElement
+  children?: React.ReactElement;
 }
 
 export default function Clock({ children }: ClockProps) {
