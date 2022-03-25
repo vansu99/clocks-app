@@ -63,3 +63,7 @@ const todo: TodoPreview = {
 ```
 
 - chung ta se thay type cua TodoPreview se duoc trich ra tu type Todo dua vao Keys luc nay la "title" | "completed"
+
+Notes:
+
+1. https://zenn.dev/nbr41to/articles/365e8105efa448

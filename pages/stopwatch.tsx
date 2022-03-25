@@ -99,19 +99,21 @@ export default function Stopwatch() {
           borderRadius: '4px',
         }}
       >
-        <Typography variant="h4">{padTime(time.hours)}</Typography>{' '}
-        <Typography variant="body1" sx={{ fontSize: '20px', marginX: '2px' }}>
-          :
-        </Typography>
-        <Typography variant="h4">{padTime(time.minutes)}</Typography>{' '}
-        <Typography variant="body1" sx={{ fontSize: '20px', marginX: '2px' }}>
-          :
-        </Typography>
-        <Typography variant="h4">{padTime(time.seconds)}</Typography>
-        <Typography variant="body1" sx={{ fontSize: '20px', marginX: '2px' }}>
-          .
-        </Typography>
-        <Typography variant="h6">{padTime(time.millisecond, 3)}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
+          <Typography variant="h3">{padTime(time.hours)}</Typography>{' '}
+          <Typography variant="body1" sx={{ fontSize: '20px', marginX: '2px' }}>
+            :
+          </Typography>
+          <Typography variant="h3">{padTime(time.minutes)}</Typography>{' '}
+          <Typography variant="body1" sx={{ fontSize: '20px', marginX: '2px' }}>
+            :
+          </Typography>
+          <Typography variant="h3">{padTime(time.seconds)}</Typography>
+          <Typography variant="body1" sx={{ fontSize: '20px', marginX: '2px' }}>
+            .
+          </Typography>
+          <Typography variant="h5">{padTime(time.millisecond, 3)}</Typography>
+        </Box>
       </Box>
       {isStart && (
         <Button onClick={startTime} variant="contained">
@@ -147,7 +149,7 @@ export default function Stopwatch() {
                   Lap {steps.length - index}
                 </Box>
                 <Typography variant="h6">
-                  + {padTime(step.diffTime.hours)}:{padTime(step.diffTime.minutes)}:
+                  {padTime(step.diffTime.hours)}:{padTime(step.diffTime.minutes)}:
                   {padTime(step.diffTime.seconds)}:{padTime(step.diffTime.millisecond, 3)}
                 </Typography>
                 <Typography variant="h6">

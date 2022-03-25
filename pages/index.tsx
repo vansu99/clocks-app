@@ -168,7 +168,7 @@ const Home: NextPage = () => {
     setIsRepeatVideo(false);
     setIsPlaying(false);
     setIsPending(false);
-    setAlarmTriggered(false);
+    //setAlarmTriggered(false);
     handleActionVideo('stop');
     setIsReplayVideo(false);
     setIsPending(false);
@@ -237,6 +237,7 @@ const Home: NextPage = () => {
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={targetTime.hours}
+                  disabled={isPending}
                   onChange={(e) => handleChangeTime(e, 'hours')}
                 >
                   {hours.map((hour, index) => (
@@ -251,6 +252,7 @@ const Home: NextPage = () => {
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
+                  disabled={isPending}
                   value={targetTime.minutes}
                   onChange={(e) => handleChangeTime(e, 'minutes')}
                 >
@@ -272,6 +274,7 @@ const Home: NextPage = () => {
               value={searchText}
               onChange={handleChange}
               size="small"
+              disabled={isPending}
               sx={{ width: 350 }}
             />
           </Stack>
