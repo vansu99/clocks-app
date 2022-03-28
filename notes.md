@@ -67,3 +67,4 @@ const todo: TodoPreview = {
 Notes:
 
 1. https://zenn.dev/nbr41to/articles/365e8105efa448
+2. Husky: https://stories.magestore.com/t/commit-chu-n-code-standard-v-i-combo-eslint-prettier-husky-trong-ng-d-ng-react/1767
